@@ -350,6 +350,17 @@ export function buildBinaryValue(leftValue: IValue, op: BinaryOperator, rightVal
             rightValue = rightValue.cast(leftValue.type);
             getter = (a, b) => a.some((element: any) => b.includes(element));
             break;
+        case '||':
+            if (leftValue.type.primary === DataType.text && rightValue.canCast(leftValue.type)) {
+                rightValue = rightValue.cast(leftValue.type);
+                getter = (a, b) => a + String(b);
+            } else if (rightValue.type.primary === DataType.text && leftValue.canCast(rightValue.type)) {
+                leftValue = leftValue.cast(rightValue.type);
+                getter = (a, b) => String(a) + b;
+            } else {
+                throw new QueryError(`Operator does not exist: ${leftValue.type.name} && ${rightValue.type.name}`, '42883');
+            }
+            break;
         case 'LIKE':
         case 'ILIKE':
         case 'NOT LIKE':
